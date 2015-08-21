@@ -1,0 +1,48 @@
+
+{% load bootstrap3 %}
+
+<form action="./edit/" method="post" class="form" id='edit-form'>
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    <input type='hidden' value='{{uid}}' name='uid'/>
+</form>
+{% buttons %}
+    <button type="submit" class="btn btn-primary" name='edit-submit' id='edit-submit'>
+         {% bootstrap_icon "floppy-save" %} Save
+   </button>
+{% endbuttons %}
+<div class="span8 col-sm-8">
+    <div class="alert alert-success" id="edit-alert" role="alert"> </div>                                  
+</div>
+<script>
+$(function () 
+{
+    
+   $("#edit-alert").hide();  
+    
+}); 
+$('#edit-submit').click( function() {
+    //$('#edit-form').submit();
+    $("#edit-alert").show();
+     $.ajaxSetup({
+                    headers: { "X-CSRFToken": $.cookie("csrftoken")}
+    });
+    $.ajax({
+        url: './edit/',
+        type: 'post',
+        dataType: 'json',
+        data: $('#edit-form').serialize(),
+        success: function(data) {
+                    $('#edit-alert').text(data.result);
+        },
+        error: function(error){
+            
+        }
+    });
+    $("#edit-alert").fadeTo(2000, 500).slideUp(500, function(){
+            $("#edit-alert").hide();
+    });
+
+});
+</script>
+

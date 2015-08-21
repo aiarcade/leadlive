@@ -1,0 +1,238 @@
+{% extends 'admin_base.html' %}
+{% block page_wrapper_block %}
+{% load bootstrap3 %}
+
+<div class="row">
+        <div class="col-lg-12">
+             <h2 class="page-header">Subject and Allocations</h2>
+        </div>
+                <!-- /.col-lg-12 -->
+</div>
+<div role="tabpanel">
+    <ul class="nav nav-tabs" role="tablist">
+     <li role="presentation" class="active"><a href="#subject-add" aria-controls="subject-add" role="tab" data-toggle="tab">Add a subject</a></li>
+      <li role="presentation"  ><a href="#subject-del" aria-controls="del" role="tab" data-toggle="tab">Edit/Delete subject </a></li>
+      <li role="presentation"  ><a href="#subject-div-add" aria-controls="subject-div-add" role="tab" data-toggle="tab">Allocate a Subject </a></li>
+       <li role="presentation"  ><a href="#subject-div-del" aria-controls="subject-div-del" role="tab" data-toggle="tab">Edit/Delete an allocation </a></li>
+    </ul>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="subject-add">
+            <div class="panel panel-primary">
+                <div class="panel-heading"><h3 class="panel-title">Add a subject record</h3></div>
+                <div class="panel-body">
+                    <form action="./" method="post" class="form">
+                        {% csrf_token %}
+                        {% bootstrap_form subject_form %}
+                        {% buttons %}
+                            <button type="submit" class="btn btn-primary">
+                                {% bootstrap_icon "floppy-save" %} Submit
+                            </button>
+                        {% endbuttons %}
+                    </form>
+                </div>
+            </div>    
+        </div>
+        <div role="tabpanel" class="tab-pane" id="subject-del">
+             <div class="panel panel-primary">
+                 <div class="panel-heading"><h3 class="panel-title">Edit/Delete a subject record</h3></div>
+                 <div class="panel-body">
+                    <table  id='subject-table' class="display" cellspacing="1" width="98%">
+                        <thead><tr><td>ID</td><td>Name</td><td>Short Name</td><td>Delete</td></tr></thead>
+                        <tbody>
+                        
+                        </tbody>
+                    </table>
+                </div>
+                  
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="subject-div-add">
+            <div class="panel panel-primary">
+                <div class="panel-heading"><h3 class="panel-title">Allocate a staff to subject</h3></div>
+               
+                <div class="panel-body">
+                    <form action="./" method="post" class="form">
+                        {% csrf_token %}
+                        {% bootstrap_form map_form %}
+                        {% buttons %}
+                            <button type="submit" class="btn btn-primary">
+                                {% bootstrap_icon "floppy-save" %} Submit
+                            </button>
+                        {% endbuttons %}
+                    </form>
+                </div>
+            </div>    
+        </div>
+            <div role="tabpanel" class="tab-pane" id="subject-div-del"s>
+             <div class="panel panel-primary">
+                 <div class="panel-heading"><h3 class="panel-title">Edit/Delete an allocation</h3></div>
+                 <div class="panel-body">
+                    <table  id='div-table' class="display" cellspacing="1" width="98%">
+                        <thead><tr><td>ID</td><td>Subject</td><td>Staff</td><td>Batch Division</td><td>Delete</td></tr></thead>
+                        <tbody>
+                        
+                        </tbody>
+                    </table>
+                </div>
+                  
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+$(document).ready(function() {
+                            
+     var subject_table=$('#subject-table').DataTable({
+    "columnDefs": [ {
+                        "targets": -1,
+                        "data": null,
+                        "defaultContent": "<button class='button-danger'>Delete</button>"
+                    } ]
+    });
+    
+    function pickup_subject_records()
+    {
+                console.log('pickup');
+                subject_table.ajax.url('/admin/subject/editajax/');
+                subject_table.ajax.reload();
+                
+                
+    }
+    pickup_subject_records();
+    
+    $('#subject-table').on( 'click', 'tr', function () {
+        if ( $(this).hasClass('selected') ) {
+            $(this).removeClass('selected');
+        }
+        else {
+            subject_table.$('tr.selected').removeClass('selected');
+            $(this).addClass('selected');
+        }
+    } );
+    $('#subject-table tbody').on( 'dblclick', 'tr', function (){
+        
+       var data = subject_table.row( this ).data() 
+       BootstrapDialog.show({ title: "Edit a subject data",
+            message: function(dialog) {
+                var $message = $('<div></div>');
+                var pageToLoad = dialog.getData('pageToLoad');
+                $message.load(pageToLoad);
+        
+                return $message;
+            },
+            data: {
+                'pageToLoad': '/admin/subject/edit/'+data[0]
+            },
+            buttons: [
+                {
+                label: 'Close',
+                action: function(dialogItself){
+                    pickup_subject_records();
+                    subject_table.draw();
+                    dialogItself.close();
+                }
+            }]
+       });
+    });
+    $('#subject-table tbody').on( 'click', 'button', function () {
+                var data = subject_table.row( $(this).parents('tr') ).data();
+                var row=subject_table.row( $(this).parents('tr') );
+               
+                $.ajaxSetup({
+                                    headers: { "X-CSRFToken": $.cookie("csrftoken")}
+                            });
+                $.post('/admin/subject/editajax/', {sid:data[0]}) 
+                        .done(function(data){
+                            if(data.search('Unable')==-1) //No need to delete row from table
+                                row.remove().draw( false );
+                            alert(data);
+                            
+                         })
+                        .fail( function(xhr, textStatus, errorThrown) {
+                            alert("Unable to process");
+                        });
+                
+    } );
+    
+    
+    var div_table=$('#div-table').DataTable({
+    "columnDefs": [ {
+                        "targets": -1,
+                        "data": null,
+                        "defaultContent": "<button class='button-danger'>Delete</button>"
+                    } ]
+    });
+    
+    function pickup_div_records()
+    {
+                console.log('pickup');
+                div_table.ajax.url('/admin/map/editajax/');
+                div_table.ajax.reload();
+                
+                
+    }
+    pickup_div_records();
+    
+    $('#div-table').on( 'click', 'tr', function () {
+        if ( $(this).hasClass('selected') ) {
+            $(this).removeClass('selected');
+        }
+        else {
+            div_table.$('tr.selected').removeClass('selected');
+            $(this).addClass('selected');
+        }
+    } );
+    $('#div-table tbody').on( 'dblclick', 'tr', function (){
+        
+       var data = div_table.row( this ).data() 
+       BootstrapDialog.show({ title: "Edit an allocation data",
+            message: function(dialog) {
+                var $message = $('<div></div>');
+                var pageToLoad = dialog.getData('pageToLoad');
+                $message.load(pageToLoad);
+        
+                return $message;
+            },
+            data: {
+                'pageToLoad': '/admin/map/edit/'+data[0]
+            },
+            buttons: [
+                {
+                label: 'Close',
+                action: function(dialogItself){
+                    pickup_div_records();
+                    div_table.draw();
+                    dialogItself.close();
+                }
+            }]
+       });
+    });
+    $('#div-table tbody').on( 'click', 'button', function () {
+                var data = div_table.row( $(this).parents('tr') ).data();
+                var row=div_table.row( $(this).parents('tr') );
+               
+                $.ajaxSetup({
+                                    headers: { "X-CSRFToken": $.cookie("csrftoken")}
+                            });
+                $.post('/admin/map/editajax/', {mid:data[0]}) 
+                        .done(function(data){
+                            if(data.search('Unable')==-1) //need to delete row from table
+                                row.remove().draw( false );
+                            alert(data);
+                            
+                         })
+                        .fail( function(xhr, textStatus, errorThrown) {
+                            alert("Unable to process");
+                        });
+                
+    } );
+    
+    
+    
+ 
+});
+
+
+ </script>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'admin_base.html' %}
+{% block page_wrapper_block %}
+{% load bootstrap3 %}
+
+<div class="row">
+        <div class="col-lg-12">
+             <h2 class="page-header">Timetable</h2>
+        </div>
+                <!-- /.col-lg-12 -->
+    </div>
+   
+            <!-- /.row -->
+    <div class="row">
+        {% for division in divs %}
+             <div class="col-lg-3 col-md-6">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-xs-9 text-right">
+                                <div>Edit Timetable</div>
+                            </div>
+                         </div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-xs-9 text-right">
+                               
+                                <h3>{{division}}</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="/timetable/open/{{division.id}}/">
+                        <div class="panel-footer" id='timetable-div'>
+                            <span class="pull-left">Click here to edit</span>
+                            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                            <div class="clearfix"></div>
+                        </div>
+                    </a>
+                     </div>
+            </div>
+        {% endfor %}
+                   
+    </div>
+
+
+
+
+{% endblock %}

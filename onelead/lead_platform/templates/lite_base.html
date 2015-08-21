@@ -1,0 +1,123 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+<head>
+     <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+   <title>OneLead Timetable</title>
+ 
+
+    <!-- Bootstrap Core CSS -->
+    <link href="{% static "css/bootstrap.min.css"%}" rel="stylesheet">
+
+    <!-- MetisMenu CSS -->
+    <link href="{% static "css/metisMenu.min.css"%}" rel="stylesheet">
+
+    <!-- Timeline CSS -->
+    <link href="{% static "css/timeline.css"%}" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="{% static "css/sb-admin-2.css"%}" rel="stylesheet">
+
+   
+    <link href="{% static "css/bootstrap-datepicker.css"%}" rel="stylesheet">
+    
+     <link href="{% static "css/jquery.dataTables.css"%}" rel="stylesheet">
+    <link href="{% static "css/daterangepicker-bs3.css"%}" rel="stylesheet">
+    
+    
+
+ 
+    
+    
+
+    <!-- Morris Charts CSS -->
+<!--
+    <link href="{% static "bower_components/morrisjs/morris.css"%}" rel="stylesheet">
+-->
+
+    <!-- Custom Fonts -->
+    <link href="{% static "css/font-awesome.min.css"%}" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+
+     <!-- jQuery -->
+    <script src="{% static "js/lib/jquery.min.js"%}"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="{% static "js/lib/bootstrap.min.js"%}"></script>
+
+    <!-- Metis Menu Plugin JavaScript -->
+   <script src="{% static "js/lib/metisMenu.min.js"%}"></script> 
+  <script src="{% static "js/lib/metisMenu.min.js"%}"></script> 
+  <!--<script data-main="{% static "js/platform.js"%}" src="{% static "js/require.js"%}" ></script -->
+  
+  <script src="{% static "js/lib/closure/goog/base.js"%}"></script> 
+  <script src="{% static "js/lib/platform.js"%}"></script> 
+  
+   <script src="{% static "js/lib/bootstrap-datepicker.js"%}"></script> 
+  
+
+    <!-- Custom Theme JavaScript -->
+    <script src="{% static "js/lib/sb-admin-2.js"%}"></script>
+    <script src="{% static "js/lib/jquery.dataTables.js"%}"></script>
+     <script src="{% static "js/lib/jquery.cookie.js"%}"></script>
+      <script src="{% static "js/lib/moment.js"%}"></script>
+       <script src="{% static "js/lib/daterangepicker.js"%}"></script>
+<script src="{% static "js/lib/dhtmlxscheduler.js"%}"></script> 
+<script src="{% static "js/lib/sources/ext/dhtmlxscheduler_agenda_view.js"%}"></script>
+
+<link href="{% static "css/dhtmlxscheduler.css"%}" rel="stylesheet">
+ 
+
+<style type="text/css" media="screen">
+	html, body{
+		margin:0px;
+		padding:0px;
+		height:100%;
+		overflow:hidden;
+	}	
+    /*event in day or week view*/
+	.dhx_cal_event.user_2 div{
+		background-color:#FF8040 !important; 
+		color:white !important;
+	}
+    /*multi-day event in month view*/
+	.dhx_cal_event_line.user_2{
+		background-color:#FF8040 !important; 
+		color:white !important;
+	}
+    /*event with fixed time, in month view*/
+	.dhx_cal_event_clear.user_2{
+		color:#FF8040 !important;
+	}	
+</style>
+ </head>
+ 
+ 
+<body>
+
+
+        <!-- Navigation -->
+        
+
+        
+             {% block page_wrapper_block %}{% endblock %}
+       
+        <!-- /#page-wrapper -->
+
+    <!-- /#wrapper -->
+
+
+</body>
+</html>
+
