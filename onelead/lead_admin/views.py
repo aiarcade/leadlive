@@ -36,12 +36,7 @@ def is_lead_admin(user):
         return True
     else:
         return False
-def generate_username(_id,_type):
-    if _type=='STUD':
-        name='S'+str(_id).zfill(6)
-    else:
-        name='E'+str(_id).zfill(6)
-    return name
+
 
 class GroupRequiredMixin(object):
     @method_decorator(user_passes_test(is_lead_admin))
@@ -76,7 +71,7 @@ class AdminStudentsAddView(LoginRequiredMixin,GroupRequiredMixin,View):
     def post(self, request, *args, **kwargs):
         form=StudentForm(request.POST)
         student = form.save(commit=False)
-        user = User.objects.create_user(generate_username(student.id,'STUD'),student.email,'1111')
+        user = User.objects.create_user(student.admission_no,student.email,'1111')
         user.first_name=student.name
         user.save()
         group = Group.objects.get(name='students') 
@@ -144,10 +139,10 @@ class AdminStaffAddView(LoginRequiredMixin,GroupRequiredMixin,View):
     def post(self, request, *args, **kwargs):
         form=StaffForm(request.POST)
         staff = form.save(commit=False)
-        user = User.objects.create_user(generate_username(staff.id,'EMP'),staff.email,'5555')
+        user = User.objects.create_user(staff.emp_no,staff.email,'5555')
         user.first_name=staff.name
         user.save()
-        group = Group.objects.get(name='employee') 
+        group = Group.objects.get(name='staff') 
         group.user_set.add(user)
         staff.save()
         return HttpResponseRedirect('/admin/staff')

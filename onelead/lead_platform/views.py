@@ -5,36 +5,36 @@ from .models import SubjectMap
 from .models import Student
 from .models import Staff
 from .models import Attendance
-from .models import TimeTable
 from datetime import date
 import datetime
 import json
 from django.views.decorators.csrf  import ensure_csrf_cookie
 from django.utils.decorators import method_decorator
 from django.contrib.auth.models import User
+from django.views.generic.list import ListView
+from django.utils import timezone
+
+
 
 class InstructorDashBoardView(View):
-    template_name = 'instructor_base.html'
+    template_name = 'dashboard.html'
     
     def get(self, request, *args, **kwargs):
-        _id=1#request.session['_id']
-        
-        return render(request, self.template_name,{})
+        _id=request.session['_id']
+        _staff=Staff.objects.filter(emp_no=_id)[0]
+        _sub_maps=SubjectMap.objects.filter(staff__id=_staff.id)
+        today = date.today()
+        year=today.year
+        day=today.day
+        month=today.month
+        hour=1
+        sub_maps={'sub_maps':_sub_maps,'year':year,'month':month,'day':day,'hour':hour}
+        return render(request, self.template_name,sub_maps)
 
     def post(self, request, *args, **kwargs):
         pass
 
 
-class TimeTableAjax(View):
-    
-    def get(self, request, *args, **kwargs):
-        staff_id=int(request.GET['staffid'])
-        t_objs = TimeTable.objects.filter(sub_map__staff__id=staff_id)
-        data=[]
-        for t_obj in t_objs:
-            data.append({'id':t_obj.sid,'text':t_obj.sub_map.tmapName(),'start_date':
-                t_obj.start_date_time.strftime('%d-%m-%Y %H:%M'),'end_date':t_obj.end_date_time.strftime('%d-%m-%Y %H:%M')})
-        return HttpResponse(json.dumps(data), content_type="application/json")
         
 
 class InstructorAttendanceView(View):
@@ -46,7 +46,7 @@ class InstructorAttendanceView(View):
         _slot=args[4]
         _date=date(int(args[1]),int(args[2]),int(args[3]))
         _sub_map=SubjectMap.objects.filter(id=_r_map)[0]
-        students=Student.objects.filter(batch_div=_sub_map.batch_div)
+        students=Student.objects.filter(batchdivision=_sub_map.batch_div)
         _attendance=[]
         empty_attendance=[]
         marked_on_theday =Attendance.objects.filter(date=_date,sub_map__batch_div=_sub_map.batch_div).values('slot_no','sub_map__subject__name','sub_map').distinct()
@@ -55,9 +55,9 @@ class InstructorAttendanceView(View):
         for _student in students:
             attendance=Attendance.objects.filter(date=_date,sub_map=_sub_map,student=_student,slot_no=_slot)
             if len(attendance)>0:
-                _attendance.append({'name':_student.name,'id':_student.admission_no,'status':attendance[0].status_of_student,'roll':_student.roll_no})
+                _attendance.append({'name':_student.name,'id':_student.admission_no,'status':attendance[0].status_of_student,'roll':_student.reg_no})
             else:
-                empty_attendance.append({'name':_student.name,'id':_student.admission_no,'status':'P','roll':_student.roll_no})
+                empty_attendance.append({'name':_student.name,'id':_student.admission_no,'status':'P','roll':_student.reg_no})
         free_slots=[]
         
         #TODO fetch the total number of slots(range of i) from a configuration table,
@@ -151,7 +151,7 @@ class InstructorAttendanceDeleteAjax(View):
             return HttpResponse("Record Deleted")
              
              
-             
-             
+
+
              
         

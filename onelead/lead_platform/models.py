@@ -100,7 +100,7 @@ class SubjectMap(models.Model):
     def tmapName(self):
         return str(self.id)+'/'+self.staff.name+'/'+self.subject.short_name
 
-#Intial model - Not used
+
 class Attendance(models.Model):
     sub_map=models.ForeignKey(SubjectMap)
     student=models.ForeignKey(Student)
@@ -125,9 +125,6 @@ class TimeTable(models.Model):
     sub_map=models.ForeignKey(SubjectMap)
     start_date_time=models.DateTimeField(null=True)
     end_date_time=models.DateTimeField(null=True)
-
-class AttendanceOfEvents(models.Model):
-    pass
     
 # class Batch(models.Model):
 #     name=models.CharField(max_length=200)
