@@ -42,7 +42,7 @@ e_group = Group.objects.get(name='staff')
 
 for student in Student.objects.all():
     print 'creating user',student
-    user = User.objects.create_user(student.admission_no,student.email,'1111')
+    user = User.objects.create_user(student.reg_no,student.email,'1111')
     user.first_name=student.name
     user.save()
     s_group.user_set.add(user)
