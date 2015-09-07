@@ -71,7 +71,7 @@ class AdminStudentsAddView(LoginRequiredMixin,GroupRequiredMixin,View):
     def post(self, request, *args, **kwargs):
         form=StudentForm(request.POST)
         student = form.save(commit=False)
-        user = User.objects.create_user(student.admission_no,student.email,'1111')
+        user = User.objects.create_user(student.reg_no,student.email,'1111')
         user.first_name=student.name
         user.save()
         group = Group.objects.get(name='students') 
