@@ -41,7 +41,10 @@ INSTALLED_APPS = (
     'lead_admin',
     'lead_auth',
     'lead_test',
-    'lead_timetable'
+    'lead_timetable',
+    'lead_student',	
+    'import_export',
+    	
     
 )
 

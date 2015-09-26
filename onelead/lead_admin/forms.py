@@ -8,6 +8,7 @@ from lead_platform.models import BatchDivision
 from lead_platform.models import Batch
 from lead_platform.models import SubjectMap
 from lead_platform.models import Subject
+from lead_platform.models import Mentorship
 import datetime
 
 GENDER_CHOICES = (
@@ -84,4 +85,10 @@ class SubjectMapForm(forms.ModelForm):
         #fields = "__all__" 
         exclude=('status',) 
 
-
+class MentorshipForm(forms.ModelForm):
+    mid = forms.CharField(widget=forms.widgets.HiddenInput(),initial='0')	
+    students =  forms.ModelMultipleChoiceField(widget=MultiSelectWidget, queryset=Student.objects.filter(status='Live'))
+    class Meta:
+	model = Mentorship
+        fields="__all__"
+		

@@ -1,0 +1,126 @@
+{% extends 'admin_base.html' %}
+{% block page_wrapper_block %}
+{% load bootstrap3 %}
+<div class="row">
+        <div class="col-lg-12">
+             <h2 class="page-header">Mentor</h2>
+        </div>
+                <!-- /.col-lg-12 -->
+</div>
+<div role="tabpanel">
+    <ul class="nav nav-tabs" role="tablist">
+     <li role="presentation" class="active"><a href="#mark" aria-controls="mark" role="tab" data-toggle="tab">Add</a></li>
+      <li role="presentation"  ><a href="#del" aria-controls="del" role="tab" data-toggle="tab">Edit/Delete</a></li>
+    </ul>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="mark">
+            <div class="panel panel-primary">
+                <div class="panel-heading"><h3 class="panel-title">Add Mentorship Record</h3></div>
+                <div class="panel-body">
+                    <form action="./" method="post" class="form">
+                        {% csrf_token %}
+                        {% bootstrap_form form %}
+                        {% buttons %}
+                            <button type="submit" class="btn btn-primary">
+                                {% bootstrap_icon "floppy-save" %} Submit
+                            </button>
+                        {% endbuttons %}
+                    </form>
+                </div>
+            </div>    
+        </div>
+        <div role="tabpanel" class="tab-pane" id="del"s>
+             <div class="panel panel-primary">
+                 <div class="panel-heading"><h3 class="panel-title">Edit/Delete a Mentor record</h3></div>
+                 <div class="panel-body">
+                    <table  id='mentor-table' class="display" cellspacing="1" width="98%">
+                        <thead><tr><td>ID</td><td>Name</td><td>Mentor</td><td>Delete</td></tr></thead>
+                        <tbody>
+                        
+                        </tbody>
+                    </table>
+                </div>
+                  
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+  <script>          <!-- /.row -->
+
+$(document).ready(function() {
+                            
+    var mentor_table=$('#mentor-table').DataTable({
+    "columnDefs": [ {
+                        "targets": -1,
+                        "data": null,
+                        "defaultContent": "<button class='button-danger'>Delete</button>"
+                    } ]
+    });
+    
+    function pickup_mentor_records()
+    {
+                console.log('pickup');
+                mentor_table.ajax.url('/admin/mentors/editajax/');
+                mentor_table.ajax.reload();
+                
+                
+    }
+    pickup_mentor_records();
+    
+    $('#mentor-table').on( 'click', 'tr', function () {
+        if ($(this).hasClass('selected') ) {
+            $(this).removeClass('selected');
+        }
+        else {
+            mentor_table.$('tr.selected').removeClass('selected');
+            $(this).addClass('selected');
+        }
+     });
+    $('#mentor-table tbody').on( 'dblclick', 'tr', function (){
+        
+       var data = mentor_table.row( this ).data() 
+       BootstrapDialog.show({ title: "Edit a mentor data",
+            message: function(dialog) {
+                var $message = $('<div></div>');
+                var pageToLoad = dialog.getData('pageToLoad');
+                $message.load(pageToLoad);
+        
+                return $message;
+            },
+            data: {
+                'pageToLoad': '/admin/mentors/edit/'+data[0]
+            },
+            buttons: [
+                {
+                label: 'Close',
+                action: function(dialogItself){
+                    pickup_mentor_records();
+                    mentor_table.draw();
+                    dialogItself.close();
+                }
+            }]
+       });
+    });
+    $('#mentor-table tbody').on( 'click', 'button', function () {
+                var data = mentor_table.row( $(this).parents('tr') ).data();
+                mentor_table.row( $(this) .parents('tr')).remove().draw( false );
+                $.ajaxSetup({
+                                    headers: { "X-CSRFToken": $.cookie("csrftoken")}
+                            });
+                $.post('/admin/mentors/editajax/', {mid:data[0]}) 
+                        .done(function(data){
+                            alert(data);
+                         })
+                        .fail( function(xhr, textStatus, errorThrown) {
+                            alert("Unable to process");
+                        });
+                
+     });
+
+    
+ 
+});
+</script>
+{% endblock %}

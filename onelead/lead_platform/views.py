@@ -1,10 +1,14 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.generic import View
+from django import forms
 from .models import SubjectMap
 from .models import Student
 from .models import Staff
 from .models import Attendance
+from .models import LeaveRequest
+from .models import Mentorship
+from forms import LeaveAcceptForm
 from datetime import date
 import datetime
 import json
@@ -13,7 +17,13 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.models import User
 from django.views.generic.list import ListView
 from django.utils import timezone
+import StringIO
+import xlsxwriter
+import io
 
+
+
+from xlsxwriter.workbook import Workbook
 
 
 class InstructorDashBoardView(View):
@@ -34,6 +44,23 @@ class InstructorDashBoardView(View):
     def post(self, request, *args, **kwargs):
         pass
 
+class InstructorViewLeaveRequest(View):
+    template_name = 'leave.html'
+    
+    def get(self, request, *args, **kwargs):
+        _id=request.session['_id']
+        _staff=Staff.objects.filter(emp_no=_id)[0]
+        _mentor_group=Mentorship.objects.filter(staff__id=_staff.id)
+        today = date.today()
+        year=today.year
+        day=today.day
+        month=today.month
+        hour=1
+        sub_maps={'mentor_group':_mentor_group,'year':year,'month':month,'day':day,'hour':hour}
+        return render(request, self.template_name,sub_maps)
+
+    def post(self, request, *args, **kwargs):
+        pass
 
         
 
@@ -51,7 +78,8 @@ class InstructorAttendanceView(View):
         empty_attendance=[]
         marked_on_theday =Attendance.objects.filter(date=_date,sub_map__batch_div=_sub_map.batch_div).values('slot_no','sub_map__subject__name','sub_map').distinct()
         print marked_on_theday
-            
+        
+        
         for _student in students:
             attendance=Attendance.objects.filter(date=_date,sub_map=_sub_map,student=_student,slot_no=_slot)
             if len(attendance)>0:
@@ -86,6 +114,7 @@ class InstructorAttendanceView(View):
         if len(_attendance)>0 and len(empty_attendance)>0: # partial mark
             return render(request, self.template_name,{'attendance_data':_attendance+empty_attendance,'marked':marked_on_theday,'map':_r_map,
              'map':_r_map,'r_year':args[1],'r_month':args[2],'r_date':args[3],'slot':int(_slot),'sub':_sub_map.subject.name,'freeslots':free_slots})
+    	
     
     def post(self, request, *args, **kwargs):
         #print request.POST
@@ -149,9 +178,48 @@ class InstructorAttendanceDeleteAjax(View):
             _slot=request.POST['slot']
             Attendance.objects.filter(date=_date,slot_no=_slot).delete()
             return HttpResponse("Record Deleted")
-             
-             
+ 
 
 
-             
+class InstructorConfirmLeaveView(View):
+    template_name = 'leave_request.html'
+    def get(self, request, *args, **kwargs):
+               
+        return render(request, self.template_name)
+
+class InstructorConfirmLeaveEditView(View):    
+    def get(self, request, *args, **kwargs):
+      	today = date.today()
         
+        leave=LeaveRequest.objects.filter(start_date=today)
+
+        records=[]
+        for record in leave:
+       			records.append([record.student.name,record.mentor.name,record.reason])
+        return HttpResponse(json.dumps(dict(data=records)),content_type="application/json")
+
+class LeaveEditView(View):
+    template_name = 'leave_edit.html'
+	
+
+    @method_decorator(ensure_csrf_cookie)
+    def get(self, request, *args, **kwargs):
+        _mentor_id=args[0]
+        mentObj=LeaveRequest.objects.filter(mentor__id=_mentor_id)
+        mentor=mentObj.values()[0]
+        mentor['mentor']=mentObj[0].mentorship.id
+        form=LeaveAcceptForm(mentor)
+        print form
+      
+        return render(request, self.template_name,{'form':form})
+    def post(self, request, *args, **kwargs):
+        try:
+            instance =LeaveRequest.objects.get(id=request.POST['mid'])
+            form=LeaveAcceptForm(request.POST,instance=instance)
+            mentor = form.save(commit=False)
+            
+            mentor.save()
+            msg="Record saved"
+        except:
+            msg="Unable to process, Please check all values are present"
+        return HttpResponse(json.dumps(dict(result=msg)), content_type="application/json")

@@ -125,6 +125,25 @@ class TimeTable(models.Model):
     sub_map=models.ForeignKey(SubjectMap)
     start_date_time=models.DateTimeField(null=True)
     end_date_time=models.DateTimeField(null=True)
+
+class Mentorship(models.Model):
+    name=models.CharField(max_length=200)
+   
+    batch=models.ForeignKey(Batch)
+    staff=models.ForeignKey(Staff)	
+    students=models.ManyToManyField(Student)
+    def __unicode__(self):
+        return self.batch.name+'/'+self.name
+    def getName(self):
+        return self.batch.name+'/'+self.name
+
+class LeaveRequest(models.Model):
+    student=models.ForeignKey(Student)
+    start_date=models.DateField(verbose_name='Started Date (dd/mm/yy)')
+    end_date=models.DateField(verbose_name='Finishing Date (dd/mm/yy)')
+    mentor=models.ForeignKey(Mentorship)
+    reason=models.TextField()
+    leave_status = models.CharField(max_length=10)	
     
 # class Batch(models.Model):
 #     name=models.CharField(max_length=200)

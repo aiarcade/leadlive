@@ -17,6 +17,7 @@ from lead_platform.models import BatchDivision
 from lead_platform.models import Subject
 from lead_platform.models import SubjectMap
 from lead_platform.models import Attendance
+from lead_platform.models import Mentorship             
 
 from forms import StudentForm 
 from forms import StaffForm 
@@ -25,7 +26,7 @@ from forms import BatchDivisionForm
 
 from forms import SubjectForm 
 from forms import SubjectMapForm
-
+from forms import MentorshipForm
 
 import datetime
 
@@ -71,7 +72,7 @@ class AdminStudentsAddView(LoginRequiredMixin,GroupRequiredMixin,View):
     def post(self, request, *args, **kwargs):
         form=StudentForm(request.POST)
         student = form.save(commit=False)
-        user = User.objects.create_user(student.reg_no,student.email,'1111')
+        user = User.objects.create_user(student.admission_no,student.email,'1111')
         user.first_name=student.name
         user.save()
         group = Group.objects.get(name='students') 
@@ -125,7 +126,7 @@ class AdminStudentsEditViewAjax(LoginRequiredMixin,GroupRequiredMixin,View):
             _admn_no=request.POST['admn_no']
             user_id=Student.objects.filter(admission_no= _admn_no)[0].id
             Student.objects.filter(admission_no= _admn_no).delete()
-            User.objects.filter(username=generate_username(user_id,'STUD')).delete()
+            User.objects.filter(username=_admn_no).delete()
             return HttpResponse("Record Deleted")
              
 ###############################staff##############################
@@ -190,7 +191,7 @@ class AdminStaffEditViewAjax(LoginRequiredMixin,GroupRequiredMixin,View):
             user_id=Staff.objects.filter(emp_no= _emp_no)[0]
             print user_id
             Staff.objects.filter(emp_no= _emp_no).delete()
-            User.objects.filter(username=generate_username(user_id,'EMP')).delete()
+            User.objects.filter(username=_emp_no).delete()
             return HttpResponse("Record Deleted")
              
 ######################Batch##################################
@@ -466,7 +467,7 @@ class AdminSubMapEditViewAjax(LoginRequiredMixin,GroupRequiredMixin,View):
                 SubjectMap.objects.filter(id=_map_id).delete()
                 return HttpResponse("Record Deleted")
             else:
-                 return HttpResponse("Unable to delete record, Is any attendance entry present  ?, If you want to reallocate the subject to another staff , create a new allocation ")
+                return HttpResponse("Unable to delete record, Is any attendance entry present  ?, If you want to reallocate the subject to another staff , create a new allocation ")
         def checkMapCanBeDeleted(self,_id):
             attendance=Attendance.objects.filter(sub_map__id=_id)
             print attendance
@@ -476,5 +477,67 @@ class AdminSubMapEditViewAjax(LoginRequiredMixin,GroupRequiredMixin,View):
                 return False
 
 
+############### Mentors #####################
+
+class MentorAddView(LoginRequiredMixin,GroupRequiredMixin,View):
+	template_name='mentor_add.html'
+	def get(self, request, *args, **kwargs):
+		form=MentorshipForm
+		return render(request, self.template_name,{'form':form})
+	def post(self, request, *args, **kwargs):
+        	
+        	
+            	form=MentorshipForm(request.POST)
+            	mentorship = form.save(commit=True)
+            	return HttpResponseRedirect('/admin/mentors')
 
 
+class AdminMentorEditViewAjax(LoginRequiredMixin,GroupRequiredMixin,View):
+        
+        #On get it will fill table data
+        def get(self, request, *args, **kwargs):
+                  
+            mentor=Mentorship.objects.all()
+            records=[]
+            for record in mentor:
+               records.append([record.id,record.name,record.staff.name])
+            return HttpResponse(json.dumps(dict(data=records)), content_type="application/json")
+             
+        def post(self, request, *args, **kwargs):
+            _mentor_id=request.POST['mid']
+	    
+            if True:
+		Mentorship.objects.filter(id=_mentor_id).delete()
+                return HttpResponse("Record Deleted")
+            else:
+                return HttpResponse("Unable to delete record")
+
+        
+class AdminMentorEditView(LoginRequiredMixin,GroupRequiredMixin,View):
+    template_name = 'mentor_edit.html'
+
+    @method_decorator(ensure_csrf_cookie)
+    def get(self, request, *args, **kwargs):
+        _mentor_id=args[0]
+        mentObj=Mentorship.objects.filter(id=_mentor_id)
+        mentor=mentObj.values()[0]
+        mentor['mid']=mentObj[0].id
+       	mentor['batch']=mentObj[0].batch.id
+        mentor['staff']=mentObj[0].staff.id
+	
+        form=MentorshipForm(instance=mentObj[0])
+        print form
+      
+        return render(request, self.template_name,{'form':form})
+    def post(self, request, *args, **kwargs):
+        try:
+            instance = Mentorship.objects.get(id=request.POST['mid'])
+            form=MentorshipForm(request.POST,instance=instance)
+            mentor = form.save(commit=False)
+            
+            mentor.save()
+            msg="Record saved"
+        except:
+            msg="Unable to process, Please check all values are present"
+        return HttpResponse(json.dumps(dict(result=msg)), content_type="application/json")
+                     

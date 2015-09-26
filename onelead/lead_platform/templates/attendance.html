@@ -60,7 +60,7 @@
                             </div>
                         </div>
                         <div class='row'>   
-                            
+                            <button class="btn btn-default pull-right" name="pdf" type="submit">Export </button>
                             <table  id='attn-table' class="display" cellspacing="1" width="98%">
                                 <thead><tr><td>Admission No</td><td>Reg No</td><td>Name</td><td>Status</td></tr></thead>
                                 <tbody>
@@ -79,6 +79,10 @@
                                         {% if attendance.status == "L" %}
                                             <button type="button" class="btn btn-warning" id="{{attendance.id}}" name='{{attendance.id}}' value="L">L</button>
                                         {% endif %}
+					{% if attendance.status == "O" %}
+                                            <button type="button" class="btn btn-warning" id="{{attendance.id}}" name='{{attendance.id}}' value="L">OD</button>
+                                        {% endif %}
+       
                                     </td>                               
                                     
                                    </tr>
@@ -121,6 +125,7 @@
                                     if(d[3].search('P')>0) student.status='P';
                                     else if(d[3].search('A')>0) student.status='A';
                                     else if(d[3].search('L')>0) student.status='L';
+				    else if(d[3].search('O')>0) student.status='O'	
                                    
                                     attn_data[student.adm_no]=student;
                                 } );
@@ -147,6 +152,13 @@
                                     
                                 }
                                 else if($(this).val() === "P")
+                                {
+                                   
+                                    $(this).val("O");
+                                    $(this).text("OD");
+                                    $(this).attr("class",'btn btn-warning');
+                                }
+				else if($(this).val() === "O")
                                 {
                                    
                                     $(this).val("A");

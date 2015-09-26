@@ -21,6 +21,10 @@ from lead_admin.views import AdminSubjectEditViewAjax
 from lead_admin.views import AdminSubMapEditView
 from lead_admin.views import AdminSubMapEditViewAjax
 
+from lead_admin.views import MentorAddView
+from lead_admin.views import AdminMentorEditView
+from lead_admin.views import AdminMentorEditViewAjax
+
 from lead_admin.views import is_lead_admin
 from django.contrib.auth.decorators import user_passes_test
 
@@ -49,7 +53,9 @@ urlpatterns = patterns('',
     url(r'^map/edit/(.*)$', (AdminSubMapEditView.as_view())),#Populate modal for edit division
     url(r'^map/editajax/$', (AdminSubMapEditViewAjax.as_view())), # Populate map table and manage delete post
     
-    
+    url(r'^mentors/$',(MentorAddView.as_view())),
+    url(r'^mentors/edit/(.*)$',(AdminMentorEditView.as_view())),
+    url(r'^mentors/editajax/$',(AdminMentorEditViewAjax.as_view())),          	
     url(r'^jsi18n/$', 'django.views.i18n.javascript_catalog'),
     
 )
