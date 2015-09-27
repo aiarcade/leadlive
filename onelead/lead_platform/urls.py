@@ -6,8 +6,6 @@ from lead_platform.views import  InstructorAttendanceDeleteAjax
 from lead_platform.views import  InstructorViewLeaveRequest
 from lead_platform.views import  InstructorConfirmLeaveView
 from lead_platform.views import  InstructorConfirmLeaveEditView
-
-
 from lead_platform.views import  LeaveEditView
 urlpatterns = patterns('',
 

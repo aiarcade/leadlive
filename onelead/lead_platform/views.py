@@ -1,7 +1,9 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.generic import View
+
 from django import forms
+
 from .models import SubjectMap
 from .models import Student
 from .models import Staff
@@ -17,9 +19,7 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.models import User
 from django.views.generic.list import ListView
 from django.utils import timezone
-import StringIO
-import xlsxwriter
-import io
+
 
 
 
@@ -191,30 +191,36 @@ class InstructorConfirmLeaveEditView(View):
     def get(self, request, *args, **kwargs):
       	today = date.today()
         
-        leave=LeaveRequest.objects.filter(start_date=today)
+        leave=LeaveRequest.objects.all()
 
         records=[]
         for record in leave:
-       			records.append([record.student.name,record.mentor.name,record.reason])
+       			records.append([record.id,record.student.name,record.mentor.name,record.reason])
         return HttpResponse(json.dumps(dict(data=records)),content_type="application/json")
+    def post(self, request, *args, **kwargs):
+            _mentor_id=request.POST['id']
+	
+            if True:
+		LeaveRequest.objects.filter(id=_mentor_id).delete()
+                return HttpResponse("Record Deleted")
+            else:
+                return HttpResponse("Unable to delete record")	
 
 class LeaveEditView(View):
     template_name = 'leave_edit.html'
-	
-
-    @method_decorator(ensure_csrf_cookie)
     def get(self, request, *args, **kwargs):
-        _mentor_id=args[0]
-        mentObj=LeaveRequest.objects.filter(mentor__id=_mentor_id)
+	_mentor_id=args[0]
+        mentObj=LeaveRequest.objects.filter(id=_mentor_id)
         mentor=mentObj.values()[0]
         mentor['mentor']=mentObj[0].mentorship.id
+	mentor['student']=mentObj[0].student.id
         form=LeaveAcceptForm(mentor)
         print form
       
         return render(request, self.template_name,{'form':form})
     def post(self, request, *args, **kwargs):
         try:
-            instance =LeaveRequest.objects.get(id=request.POST['mid'])
+            instance =LeaveRequest.objects.get(id=request.POST['id'])
             form=LeaveAcceptForm(request.POST,instance=instance)
             mentor = form.save(commit=False)
             
