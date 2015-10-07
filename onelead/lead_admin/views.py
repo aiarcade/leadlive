@@ -712,7 +712,7 @@ class AdminConfirmLeaveEditView(View):
         leave=LeaveRequest.objects.filter(start_date=today)
 	records=[]
         for record in leave:
-       			records.append([record.id,record.student.name,record.mentor.name,record.start_date.strftime('%d/%m/%y'),record.end_date.strftime('%d/%m/%y'),record.reason])
+       			records.append([record.id,record.student.name,record.mentor.name,record.start_date.strftime('%d/%m/%y'),record.end_date.strftime('%d/%m/%y'),record.session,record.reason])
         return HttpResponse(json.dumps(dict(data=records)),content_type="application/json")
     def post(self, request, *args, **kwargs):
             _mentor_id=request.POST['id']
@@ -748,14 +748,14 @@ class AdminLeaveEditView(View):
 ###########################################ODView###########################################
 
 class OdAddView(View):
-	template_name='Od_add.html'
+	template_name='Od_admin_add.html'
 	def get(self, request, *args, **kwargs):
 	    form=OdForm
 	    return render(request, self.template_name,{'form':form})
 	def post(self, request, *args, **kwargs):
             form=OdForm(request.POST)
             odlist = form.save(commit=True)
-            return HttpResponseRedirect('/platform/Od/')
+            return HttpResponseRedirect('/admin/Od/')
 
 
 class OdEditViewAjax(View):
@@ -765,7 +765,7 @@ class OdEditViewAjax(View):
             odlist=OdList.objects.all()
             records=[]
             for record in odlist:
-               records.append([record.id,record.purpose,record.staff.name,record.students])
+               records.append([record.id,record.purpose,record.date.strftime('%d/%m/%y'),record.staff.name,record.students])
             return HttpResponse(json.dumps(dict(data=records)), content_type="application/json")
              
         def post(self, request, *args, **kwargs):

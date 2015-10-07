@@ -44,7 +44,10 @@ INSTALLED_APPS = (
     'lead_timetable',
     'lead_student',	
     
+<<<<<<< HEAD
+=======
     	
+>>>>>>> 368f65dae34bedbdf0068f25ddc65ccd8a0f64a1
     
 )
 
@@ -79,7 +82,6 @@ DATABASES = {
         },
     }
 }
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/
 
