@@ -82,6 +82,9 @@
 					{% if attendance.status == "O" %}
                                             <button type="button" class="btn btn-warning" id="{{attendance.id}}" name='{{attendance.id}}' value="L">OD</button>
                                         {% endif %}
+					{% if attendance.status == "PL" %}
+                                            <button type="button" class="btn btn-warning" id="{{attendance.id}}" name='{{attendance.id}}' value="L">PL</button>
+                                        {% endif %}
        
                                     </td>                               
                                     
@@ -121,11 +124,11 @@
                                     student,roll_no=d[1]
                                     student.name=d[2];
                                     
-                                    
-                                    if(d[3].search('P')>0) student.status='P';
+                                          if(d[3].search('P')>0) student.status='P';
                                     else if(d[3].search('A')>0) student.status='A';
                                     else if(d[3].search('L')>0) student.status='L';
-				    else if(d[3].search('O')>0) student.status='O'	
+				    else if(d[3].search('O')>0) student.status='O';
+				    else if(d[3].search('PL')>0) student.status='PL'	
                                    
                                     attn_data[student.adm_no]=student;
                                 } );
@@ -135,7 +138,7 @@
                                 var _button_clicked=$(this).attr('name');
                                 
                                 
-                                if($(this).val() === "A")
+                                if($(this).val() === "PL")
                                 {
                                    
                                     $(this).val("L");
@@ -165,7 +168,13 @@
                                     $(this).text("A");
                                     $(this).attr("class",'btn btn-danger');
                                 }
-                               
+                               else if($(this).val() === "A")
+                                {
+                                   
+                                    $(this).val("PL");
+                                    $(this).text("PL");
+                                    $(this).attr("class",'btn btn-warning');
+                                }
                                 attn_data[_button_clicked].status=$(this).val();
                                 
                             });
