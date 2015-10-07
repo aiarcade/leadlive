@@ -17,6 +17,11 @@ GENDER_CHOICES = (
     ('F', 'F'),
     
 )
+SESSION_CHOICES= (
+('1', '1'),
+('2', '2'),
+('3', '3'),
+('4', '4'))
 STATUS_CHOICES = (
     ('Live', 'Live'),
     ('Finished', 'Finished'),
@@ -25,8 +30,8 @@ STATUS_CHOICES = (
 DATE_FRMT=['%d/%m/%y']
 
 class LeaveRequestForm(forms.ModelForm):
-	start_date=forms.DateField(initial=date.today())
-	end_date=forms.DateField(initial=date.today())
+	start_date=forms.DateTimeField(initial=date.today())
+	end_date=forms.DateTimeField(initial=date.today())
 	
 	class Meta:
 		model = LeaveRequest 

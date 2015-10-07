@@ -25,6 +25,20 @@ from lead_admin.views import MentorAddView
 from lead_admin.views import AdminMentorEditView
 from lead_admin.views import AdminMentorEditViewAjax
 
+from lead_admin.views import AdminAttendanceView
+from lead_admin.views import AdminAttendanceSubView
+from lead_admin.views import AdminAttendanceAjaxView
+from lead_admin.views import AdminAttendanceDeleteAjaxView
+
+from lead_admin.views import  AdminConfirmLeaveView
+from lead_admin.views import  AdminConfirmLeaveEditView
+from lead_admin.views import  AdminLeaveEditView
+
+from lead_admin.views import OdAddView
+from lead_admin.views import OdEditViewAjax
+from lead_admin.views import OdEditView
+
+
 from lead_admin.views import is_lead_admin
 from django.contrib.auth.decorators import user_passes_test
 
@@ -58,4 +72,16 @@ urlpatterns = patterns('',
     url(r'^mentors/editajax/$',(AdminMentorEditViewAjax.as_view())),          	
     url(r'^jsi18n/$', 'django.views.i18n.javascript_catalog'),
     
-)
+    url(r'^attendance/$',(AdminAttendanceView.as_view())),
+    url(r'^attendance/subs/(\d+)/$',(AdminAttendanceSubView.as_view())),
+    url(r'^attendance/subs/(\d+)/(\d{4})/(\d+)/(\d+)/(\d+)/$',(AdminAttendanceAjaxView.as_view())),
+    url(r'^attendance/pullrecords/$',(AdminAttendanceDeleteAjaxView.as_view())),	   
+	
+	url(r'leave/$',(AdminConfirmLeaveView.as_view())),
+	url(r'leave/editajax/(.*)$',(AdminConfirmLeaveEditView.as_view())),
+	url(r'leave/edit/$',(AdminLeaveEditView.as_view())),
+	
+	url(r'^Od/$',OdAddView.as_view()),
+    url(r'^Od/edit/$',OdEditView.as_view()),
+    url(r'^Od/editajax/(.*)$',OdEditViewAjax.as_view()),
+  )

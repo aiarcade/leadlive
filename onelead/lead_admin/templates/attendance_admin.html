@@ -1,0 +1,290 @@
+{% extends 'attendance_base.html' %}
+{% block page_wrapper_block %}
+<div class="row">
+        <div class="col-lg-12">
+             <h2 class="page-header">Attendance</h2>
+        </div>
+                <!-- /.col-lg-12 -->
+</div>
+<div role="tabpanel">
+    <ul class="nav nav-tabs" role="tablist">
+     <li role="presentation" class="active"><a href="#mark" aria-controls="mark" role="tab" data-toggle="tab">Add/Edit</a></li>
+      <li role="presentation"  ><a href="#del" aria-controls="del" role="tab" data-toggle="tab">Delete</a></li>
+    </ul>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="mark">
+            <div class="panel panel-primary">
+                <div class="panel-heading"><h3 class="panel-title">Add/Edit Attendance Records( Subject : {{sub}})</h3></div>
+                <div class="panel-body">
+            
+                <div class="form-group">
+                        <div class="col-sm-12">
+                            <div class='row'>
+                                <div class="col-md-3" id="attn-input-date">
+                                    <b>Select a Date</b><input type='text' class="form-control" id='attn-datepick' name='attn-datepick' data-date-format="dd/mm/yyyy">
+                                </div>
+                                
+
+                                
+                                <div class="col-md-3" id="hour-input">
+                                    <b>Select a free slot</b>
+                                     <select id="attn-input-slot" class="form-control" name="attn-input-slot">
+                                         {% for slot_i in freeslots %}
+                                            
+                                                 {% ifnotequal slot_i slot %}
+                                                    <option >{{slot_i}}</option>
+                                                {% endifnotequal %}
+                                                    
+                                                {% ifequal slot_i slot %}
+                                                    <option selected>{{slot_i}}</option>
+                                                {% endifequal %}
+                                            
+                                        
+                                         {% endfor %}
+                                        
+                                     </select>
+                                     
+                                </div>
+                               
+                                <div class="col-sm-6" >
+                                <b>Marked slots on this Day:</b>
+                                {% for mark_hrs in marked %}
+                                    <kbd> {{mark_hrs.slot_no}}. {{mark_hrs.sub_map__subject__name}} </kbd>
+                                {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class='row'>
+                            <div class="col-lg-12" >
+                              <hr>
+                            </div>
+                        </div>
+                        <div class='row'>   
+                       
+                            <table  id='attn-table' class="display" cellspacing="1" width="98%">
+                                <thead><tr><td>Admission No</td><td>Reg No</td><td>Name</td><td>Status</td></tr></thead>
+                                <tbody>
+                                {% for attendance in attendance_data %}
+                                    <tr>
+                                    <td>{{attendance.id}}</td>
+                                    <td>{{attendance.roll}}</td>
+                                    <td>{{attendance.name}}</td>
+                                    <td>
+                                        {% if attendance.status == "P" %}
+                                            <button type="button" class="btn btn-success" id="{{attendance.id}}" name='{{attendance.id}}' value="P">P</button>
+                                        {% endif %}
+                                        {% if attendance.status == "A" %}
+                                            <button type="button" class="btn btn-danger" id="{{attendance.id}}" name='{{attendance.id}}' value="A">A</button>
+                                        {% endif %}
+                                        {% if attendance.status == "L" %}
+                                            <button type="button" class="btn btn-warning" id="{{attendance.id}}" name='{{attendance.id}}' value="L">L</button>
+                                        {% endif %}
+					{% if attendance.status == "O" %}
+                                            <button type="button" class="btn btn-warning" id="{{attendance.id}}" name='{{attendance.id}}' value="L">OD</button>
+                                        {% endif %}
+       
+                                    </td>                               
+                                    
+                                   </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                            <div>
+                        </div>
+                     <div class='row'>
+                            <div class="span5 col-sm-2">
+                                <div class="alert alert-success" id="attn-alert" role="alert"> </div>                                  
+                            </div>
+                            <div class="col-md-2">.</div>
+                            
+                            <div class="span5 col-md-8">
+                                <button type="submit" class="btn btn-primary" id='submit' value='Save'>Save</button>
+                            </div>
+                            
+                       
+                    </div> 
+                    <script type="text/javascript">
+                        var attn_data={};
+                       $('#attn-datepick').datepicker( {autoclose: true});
+                       $('#attn-datepick').datepicker('setDate', new Date('{{r_month}}/{{r_date}}/{{r_year}}'));
+                       $('#attn-datepick').datepicker('update');
+                       //$("#attn-input-slot").prop("selectedIndex", {{slot}});
+                      console.log("Yes");
+                       $('#attn-alert').hide();
+                        $(function () {
+                            
+                            var attn_table=$('#attn-table').DataTable();
+                            attn_table.rows().indexes().each( function(idx) {
+                                    var d = attn_table.row( idx ).data();
+                                    var student= new Object();
+                                    student.adm_no=d[0];
+                                    student,roll_no=d[1]
+                                    student.name=d[2];
+                                    
+                                    
+                                    if(d[3].search('P')>0) student.status='P';
+                                    else if(d[3].search('A')>0) student.status='A';
+                                    else if(d[3].search('L')>0) student.status='L';
+				    else if(d[3].search('O')>0) student.status='O'	
+                                   
+                                    attn_data[student.adm_no]=student;
+                                } );
+                             
+                            $('#attn-table tbody').on( 'click', 'button', function ()  {
+                               
+                                var _button_clicked=$(this).attr('name');
+                                
+                                
+                                if($(this).val() === "A")
+                                {
+                                   
+                                    $(this).val("L");
+                                    $(this).text("L");
+                                    $(this).attr("class",'btn btn-warning');
+                                    
+                                }
+                                else if($(this).val() === "L")
+                                {
+                                   
+                                    $(this).val("P");
+                                    $(this).text("P");
+                                    $(this).attr("class",'btn btn-success');
+                                    
+                                }
+                                else if($(this).val() === "P")
+                                {
+                                   
+                                    $(this).val("O");
+                                    $(this).text("OD");
+                                    $(this).attr("class",'btn btn-warning');
+                                }
+				else if($(this).val() === "O")
+                                {
+                                   
+                                    $(this).val("A");
+                                    $(this).text("A");
+                                    $(this).attr("class",'btn btn-danger');
+                                }
+                               
+                                attn_data[_button_clicked].status=$(this).val();
+                                
+                            });
+                            
+                            
+                            $('#submit').click( function() {
+                                
+                                var slot_value=$.trim($("#attn-input-slot").val());
+                                if( slot_value.length===0)
+                                {
+                                    alert("No  slot given");
+                                    return;
+                                }
+                                $('#attn-alert').text("Saving...");
+                                $('#attn-alert').show();
+                                $.ajaxSetup({
+                                    headers: { "X-CSRFToken": $.cookie("csrftoken")}
+                                });
+                                //$('#attn-input-slot').val()
+                                $.post('./', {attn_data:JSON.stringify(attn_data),date:$('#attn-datepick').val(),slot:$('#attn-input-slot').val(),map:'{{map}}'}) 
+                                    .done(function(data){
+                                            $('#attn-alert').text("Saved.");
+                                    })
+                                    .fail( function(xhr, textStatus, errorThrown) {
+                                            $('#attn-alert').text("Unable to process!");
+                                    });
+                                 
+                                
+                                $("#attn-alert").fadeTo(2000, 500).slideUp(500, function(){
+                                        $("#attn-alert").hide();
+                                });
+                                            
+                            });
+                        
+                        });
+                        $("#attn-input-slot").on('change keyup', function() {
+                           var day=$('#attn-datepick').val().slice(0,2);
+                           var month=$('#attn-datepick').val().slice(3,5);
+                           var year=$('#attn-datepick').val().slice(6,10);
+                           window.location.replace("/admin/attendance/subs/{{map}}/"+year+'/'+month+'/'+day+'/'+$('#attn-input-slot').val());
+                        });
+                        $("#attn-input-date").on('change keyup', function() {
+                            var day=$('#attn-datepick').val().slice(0,2);
+                           var month=$('#attn-datepick').val().slice(3,5);
+                           var year=$('#attn-datepick').val().slice(6,10);
+                           window.location.replace("/admin/attendance/subs/{{map}}/"+year+'/'+month+'/'+day+'/'+$('#attn-input-slot').val());
+                           
+                        });
+                    
+                    
+                    </script>
+                </div>    
+                    
+            </div>
+        
+        </div>
+        </div>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="del"s>
+             <div class="panel panel-primary">
+                 <div class="panel-heading"><h3 class="panel-title">Delete Attendance Records</h3></div>
+                 <div class="panel-body">
+                   <b>Select a date range</b>
+                    <input type="text" style="width: 200px" name="del_range" id="del_range" class="form-control"/> 
+                </div>
+                <table id="delete-attn-table" class="display" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Slot</th>
+                            <th>Subject</th>
+                            <th>Subject Map  No</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                </table>
+                <script>
+            
+            var del_table = $('#delete-attn-table').DataTable( {
+              
+                    "columnDefs": [ {
+                        "targets": -1,
+                        "data": null,
+                        "defaultContent": "<button class='button-danger'>Delete</button>"
+                    } ]
+            } );
+            function pickup_attendace_records(from,to)
+            {
+                console.log(from.toISOString(), to.toISOString());
+                del_table.ajax.url('/admin/attendance/pullrecords/?dtfrom='+from.toISOString()+'&dtto='+to.toISOString());
+                del_table.ajax.reload();
+                
+                
+            }
+            $('#delete-attn-table tbody').on( 'click', 'button', function () {
+                var data = del_table.row( $(this).parents('tr') ).data();
+                del_table.row( $(this) .parents('tr')).remove().draw( false );
+                $.ajaxSetup({
+                                    headers: { "X-CSRFToken": $.cookie("csrftoken")}
+                            });
+                $.post('/platform/pullrecords/', {date:data[0],slot:data[1]}) 
+                        .done(function(data){
+                            alert(data);
+                         })
+                        .fail( function(xhr, textStatus, errorThrown) {
+                            alert("Unable to process");
+                        });
+                
+            } );
+            $('#del_range').daterangepicker(null, function(start, end, label) {
+                 pickup_attendace_records(start,end);
+            
+            });
+            
+            </script>    
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+{% endblock %}

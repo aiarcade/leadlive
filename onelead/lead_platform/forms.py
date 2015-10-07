@@ -9,6 +9,7 @@ from lead_platform.models import SubjectMap
 from lead_platform.models import Subject
 from lead_platform.models import LeaveRequest
 from lead_platform.models import Attendance
+from lead_platform.models import OdList
 import datetime
 
 
@@ -18,6 +19,7 @@ STATUS_CHOICES = (
     ('0.5','0.5'),
 	
 )
+
 LEAVE_STATUS=(
     ('0', '0'),
     ('1', '1'),
@@ -27,6 +29,7 @@ class AttendanceForm(forms.ModelForm):
 	date=forms.DateField(initial=datetime.date.today().strftime('%d/%m/%y'))
         
     	status_of_student = forms.ChoiceField(choices=STATUS_CHOICES,widget=forms.RadioSelect)
+	
 	class Meta:
 		model = Attendance 
         	fields = "__all__" 
@@ -40,3 +43,8 @@ class LeaveAcceptForm(forms.ModelForm):
 		model = LeaveRequest 
         	fields = "__all__" 
 
+class OdForm(forms.ModelForm):
+	date=forms.DateField(initial=datetime.date.today().strftime('%d/%m/%y'))
+	class Meta:
+		model = OdList
+        	fields = "__all__" 

@@ -1,21 +1,17 @@
-
 {% load bootstrap3 %}
-
-<form action="../edit/" method="post" class="form" id='edit-form'>
-    
+<form action="./edit/" method="post" class="form" id='edit-form'>
     {% csrf_token %}
     {% bootstrap_form form %}
-
+                 
 </form>
 {% buttons %}
-   <button type="submit" class="btn btn-primary" name='edit-submit' id='edit-submit'>
+    <button type="submit" class="btn btn-primary" name='edit-submit' id='edit-submit'>
          {% bootstrap_icon "floppy-save" %} Save
    </button>
 {% endbuttons %}
 <div class="span8 col-sm-8">
     <div class="alert alert-success" id="edit-alert" role="alert"> </div>                                  
 </div>
-
 <script>
 $(function () 
 {
@@ -24,13 +20,13 @@ $(function ()
     
 }); 
 $('#edit-submit').click( function() {
-    $('#edit-form').submit();
+    //$('#edit-form').submit();
     $("#edit-alert").show();
      $.ajaxSetup({
                     headers: { "X-CSRFToken": $.cookie("csrftoken")}
     });
     $.ajax({
-        url: '../edit/',
+        url: './edit/',
         type: 'post',
         dataType: 'json',
         data: $('#edit-form').serialize(),

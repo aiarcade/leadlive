@@ -128,7 +128,6 @@ class TimeTable(models.Model):
 
 class Mentorship(models.Model):
     name=models.CharField(max_length=200)
-   
     batch=models.ForeignKey(Batch)
     staff=models.ForeignKey(Staff)	
     students=models.ManyToManyField(Student)
@@ -139,12 +138,21 @@ class Mentorship(models.Model):
 
 class LeaveRequest(models.Model):
     student=models.ForeignKey(Student)
-    start_date=models.DateField(verbose_name='Started Date (dd/mm/yy)')
-    end_date=models.DateField(verbose_name='Finishing Date (dd/mm/yy)')
+    start_date=models.DateTimeField(verbose_name='Started Date (dd/mm/yy)')
+    end_date=models.DateTimeField(verbose_name='Finishing Date (dd/mm/yy)')
+    session=models.CharField(max_length=10)	
     mentor=models.ForeignKey(Mentorship)
     reason=models.TextField()
     leave_status = models.CharField(max_length=10)	
     
+class OdList(models.Model):
+	staff=models.ForeignKey(Staff)
+	date=models.DateField(verbose_name='Started Date (dd/mm/yyyy)')
+	club=models.CharField(max_length=20)
+	purpose=models.CharField(max_length=30)
+	students=models.TextField()
+
+
 # class Batch(models.Model):
 #     name=models.CharField(max_length=200)
 #     start_date=models.DateField('started_date')

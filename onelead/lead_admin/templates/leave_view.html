@@ -1,4 +1,4 @@
-{% extends 'od_base.html' %}
+{% extends 'admin_base.html' %}
 {% block page_wrapper_block %}
 {% load bootstrap3 %}
 
@@ -39,7 +39,7 @@ $(document).ready(function() {
     function pickup_leave_records()
     {
                 console.log('pickup');
-                leave_table.ajax.url('/platform/leave/confirm/done/');
+                leave_table.ajax.url('/admin/leave/editajax/');
                 leave_table.ajax.reload();
                 
                 
@@ -67,7 +67,7 @@ $(document).ready(function() {
                 return $message;
             },
             data: {
-                'pageToLoad':'/platform/leave/confirm/edit/' + data[0]
+                'pageToLoad':'/admin/leave/edit/' + data[0]
 		
             },
 		
@@ -91,7 +91,7 @@ $(document).ready(function() {
                 $.ajaxSetup({
                               headers: { "X-CSRFToken": $.cookie("csrftoken")}
                             });
-                $.post('/platform/leave/confirm/done/', {id:data[0]}) 
+                $.post('/admin/leave/editajax/', {id:data[0]}) 
                         .done(function(data){
                             alert(data);
                          })

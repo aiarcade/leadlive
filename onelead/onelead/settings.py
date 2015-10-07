@@ -43,8 +43,7 @@ INSTALLED_APPS = (
     'lead_test',
     'lead_timetable',
     'lead_student',	
-    
-    	
+    'import_export'
     
 )
 
@@ -71,12 +70,12 @@ SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 
 DATABASES = {
     'default': {
-        #'ENGINE': 'django.db.backends.sqlite3',
-        #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         'ENGINE': 'django.db.backends.mysql',
-        'OPTIONS': {
-            'read_default_file': '/home/onelead/mysql.cnf',
-        },
+        'NAME': 'mydata5',
+        'USER': 'root',
+        'PASSWORD': 'acingitfrom1992',
+        'HOST': 'localhost',
+        
     }
 }
 

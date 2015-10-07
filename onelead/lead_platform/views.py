@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.http import HttpResponseRedirect
 from django.views.generic import View
 
 from django import forms
@@ -10,10 +11,16 @@ from .models import Staff
 from .models import Attendance
 from .models import LeaveRequest
 from .models import Mentorship
+from .models import OdList
 from forms import LeaveAcceptForm
+from forms import OdForm
+
+
 from datetime import date
+
 import datetime
 import json
+
 from django.views.decorators.csrf  import ensure_csrf_cookie
 from django.utils.decorators import method_decorator
 from django.contrib.auth.models import User
@@ -23,7 +30,7 @@ from django.utils import timezone
 
 
 
-
+from xlsxwriter.workbook import Workbook
 
 
 class InstructorDashBoardView(View):
@@ -43,6 +50,8 @@ class InstructorDashBoardView(View):
 
     def post(self, request, *args, **kwargs):
         pass
+
+
 
 class InstructorViewLeaveRequest(View):
     template_name = 'leave.html'
@@ -117,7 +126,7 @@ class InstructorAttendanceView(View):
     	
     
     def post(self, request, *args, **kwargs):
-        #print request.POST
+        
         data=json.loads(request.POST['attn_data'])
         r_date= datetime.datetime.strptime(str(request.POST['date']), '%d/%m/%Y').date()
         r_slot=request.POST['slot']
@@ -190,24 +199,22 @@ class InstructorConfirmLeaveView(View):
 class InstructorConfirmLeaveEditView(View):    
     def get(self, request, *args, **kwargs):
       	today = date.today()
-        
-        leave=LeaveRequest.objects.all()
-
-        records=[]
+        leave=LeaveRequest.objects.filter(start_date=today)
+	records=[]
         for record in leave:
-       			records.append([record.id,record.student.name,record.mentor.name,record.reason])
+       			records.append([record.id,record.student.name,record.mentor.name,record.start_date.strftime('%d/%m/%y'),record.end_date.strftime('%d/%m/%y'),record.reason])
         return HttpResponse(json.dumps(dict(data=records)),content_type="application/json")
     def post(self, request, *args, **kwargs):
             _mentor_id=request.POST['id']
-	
-            if True:
+	    if True:
 		LeaveRequest.objects.filter(id=_mentor_id).delete()
                 return HttpResponse("Record Deleted")
             else:
                 return HttpResponse("Unable to delete record")	
 
-class LeaveEditView(View):
+class InstructorLeaveEditView(View):
     template_name = 'leave_edit.html'
+    
     def get(self, request, *args, **kwargs):
 	_mentor_id=args[0]
         mentObj=LeaveRequest.objects.filter(id=_mentor_id)
@@ -216,16 +223,89 @@ class LeaveEditView(View):
 	mentor['student']=mentObj[0].student.id
         form=LeaveAcceptForm(mentor)
         print form
-      
-        return render(request, self.template_name,{'form':form})
+    	return render(request, self.template_name,{'form':form})
     def post(self, request, *args, **kwargs):
         try:
             instance =LeaveRequest.objects.get(id=request.POST['id'])
             form=LeaveAcceptForm(request.POST,instance=instance)
             mentor = form.save(commit=False)
-            
             mentor.save()
             msg="Record saved"
         except:
             msg="Unable to process, Please check all values are present"
         return HttpResponse(json.dumps(dict(result=msg)), content_type="application/json")
+
+class InstructorDashBoardView(View):
+    template_name = 'dashboard.html'
+    
+    def get(self, request, *args, **kwargs):
+        _id=request.session['_id']
+        _staff=Staff.objects.filter(emp_no=_id)[0]
+        _sub_maps=SubjectMap.objects.filter(staff__id=_staff.id)
+        today = date.today()
+        year=today.year
+        day=today.day
+        month=today.month
+        hour=1
+        sub_maps={'sub_maps':_sub_maps,'year':year,'month':month,'day':day,'hour':hour}
+        return render(request, self.template_name,sub_maps)
+
+
+class OdAddView(View):
+	template_name='Od_add.html'
+	def get(self, request, *args, **kwargs):
+	    form=OdForm
+	    return render(request, self.template_name,{'form':form})
+	def post(self, request, *args, **kwargs):
+            form=OdForm(request.POST)
+            odlist = form.save(commit=True)
+            return HttpResponseRedirect('/platform/Od/')
+
+
+class OdEditViewAjax(View):
+        
+        #On get it will fill table data
+        def get(self, request, *args, **kwargs):
+            odlist=OdList.objects.all()
+            records=[]
+            for record in odlist:
+               records.append([record.id,record.purpose,record.staff.name,record.students])
+            return HttpResponse(json.dumps(dict(data=records)), content_type="application/json")
+             
+        def post(self, request, *args, **kwargs):
+            _od_id=request.POST['id']
+	    if True:
+		OdList.objects.filter(id=_od_id).delete()
+                return HttpResponse("Record Deleted")
+            else:
+                return HttpResponse("Unable to delete record")
+
+        
+class OdEditView(View):
+    template_name = 'od_edit.html'
+    def get(self, request, *args, **kwargs):
+        _od_id=args[0]
+	odObj=OdList.objects.filter(id=_od_id)
+        od=odObj.values()[0]
+        od['id']=mentObj[0].id
+       	od['staff']=mentObj[0].staff.id
+	form=OdForm(od)
+	print form
+	return render(request,self.template_name,{'form':form})
+
+    def post(self, request, *args, **kwargs):
+        try:
+            instance = OdList.objects.get(id=request.POST['id'])
+            form=OdForm(request.POST,instance=instance)
+            odlist = form.save(commit=False)
+            odlist.save()
+            msg="Record saved"
+        except:
+            msg="Unable to process, Please check all values are present"
+        return HttpResponse(json.dumps(dict(result=msg)), content_type="application/json")
+
+    def post(self, request, *args, **kwargs):
+        pass
+
+
+
