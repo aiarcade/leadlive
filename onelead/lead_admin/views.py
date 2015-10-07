@@ -97,8 +97,8 @@ class AdminStudentsEditView(LoginRequiredMixin,GroupRequiredMixin,View):
 
     @method_decorator(ensure_csrf_cookie)
     def get(self, request, *args, **kwargs):
-        adm_no=args[0]
-        studentObj=Student.objects.filter(admission_no=adm_no)
+        adm_no=args[1]
+        studentObj=Student.objects.filter(reg_no=adm_no)
         form=StudentForm(instance=studentObj[0])
         form.fields['admitted_date'].initial=studentObj[0].admitted_date.strftime('%d/%m/%y')
         #form.fields['uid'].initial='10'
